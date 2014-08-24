@@ -1,0 +1,121 @@
+#include <iostream>
+#include <vector>
+#include <list>
+
+using namespace std;
+
+list<int> current_necklace;
+
+void add_cycle_to_necklace(vector<list<int> > &adj_list, list<int>::iterator itr, int start)
+{
+	int current = *itr;
+	list<int>::iterator i = adj_list[current].begin();
+	int second_vertex = *i;
+	adj_list[current].erase(i);
+	for (list<int>::iterator j = adj_list[second_vertex].begin(); j != adj_list[second_vertex].end(); ++j) {
+		if (*j == current) {
+			adj_list[second_vertex].erase(j);
+			break;
+		}
+	}
+	if (second_vertex == start) {
+		list<int>::iterator next = itr;
+		next++;
+		itr = current_necklace.insert(next, second_vertex);
+		return;
+	} else {
+		list<int>::iterator next = itr;
+		next++;
+		itr = current_necklace.insert(next,second_vertex);
+		add_cycle_to_necklace(adj_list, itr, start);
+	}
+}
+
+void print_euler_circuit(vector<list<int> > &adj_list)
+{
+	int n = adj_list.size();
+	int start;
+	for (start = 0; start < n; start++) {
+		if (!adj_list[start].empty()) {
+			break;
+		}
+	}
+	current_necklace.clear();
+	current_necklace.push_back(start);
+	while (1) {
+		bool added = false;
+		for (list<int>::iterator itr = current_necklace.begin(); itr != current_necklace.end(); ++itr) {
+			if(!adj_list[*itr].empty()) {
+				added = true;
+				add_cycle_to_necklace(adj_list, itr, *itr);
+			}
+		}
+		if (!added) {
+			break;
+		}
+	}
+	bool empty = true;
+	for (int i = 0; i < n; i++) {
+		if (!adj_list[start].empty()) {
+			empty = false;
+			break;
+		}
+	}
+	if (!empty) {
+		cout << "some beads may be lost";
+	} else {
+		list<int>::iterator i = current_necklace.begin();
+		int first, last;
+		first = *i + 1;
+		cout << *i + 1<< " ";
+		++i;
+		for (; i != current_necklace.end();) {
+			int vertex = *i;
+			cout << vertex + 1 << endl;
+			++i;
+			if (i !=  current_necklace.end())
+				cout << vertex + 1<< " ";
+		}
+	}
+}
+
+int main()
+{
+	int T;
+	cin >> T;
+	for (int i = 0; i < T; i++) {
+		int n;
+		cin >> n;
+		vector<list<int> > adj_list(50);
+		vector<int> degree(50, 0);
+		cout << "Case #" << i + 1 << endl;
+		for (int j = 0; j < n; j++) {
+			int color1, color2;
+			cin >> color1 >> color2;
+			--color1;
+			--color2;
+			adj_list[color1].push_back(color2);
+			++degree[color1];
+			adj_list[color2].push_back(color1);
+			++degree[color2];
+		}
+		
+		bool odd_found = false;
+		for (int j = 0; j < n; j++) {
+			if ((degree[j] % 2) != 0) {
+				odd_found = true;
+				cout << "some beads may be lost" << endl;
+				break;
+			}
+		}
+		
+		if (!odd_found) {
+			print_euler_circuit(adj_list);
+		}
+
+		if (i < T - 1) {
+			cout << endl;
+		}
+	}
+	return 0;
+}

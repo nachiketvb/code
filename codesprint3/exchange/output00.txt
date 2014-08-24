@@ -1,0 +1,4 @@
+current_nodes[0] = 0
+current_nodes[1] = 2
+current_nodes[0] = 1
+2 1 3 

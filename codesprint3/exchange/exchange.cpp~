@@ -1,0 +1,70 @@
+#include <iostream>
+#include <vector>
+#include <list>
+#include <algorithm>
+
+using namespace std;
+
+struct graph_node {
+	int data;
+	list<int> neighbours;
+};
+
+void dfs(vector<graph_node> &graph, int n, vector<int> &visited, vector<int> &current_nodes, vector<int> &current_nums)
+{
+	if (visited[n]) {
+		return;
+	}
+	cout << "visited " << graph[n].data << endl;
+	visited[n] = 1;
+	current_nodes.push_back(n);
+	current_nums.push_back(graph[n].data);
+	for (list<int>::iterator itr = graph[n].neighbours.begin(); itr != graph[n].neighbours.end(); ++itr) {
+		dfs(graph, *itr, visited, current_nodes, current_nums);
+	}
+	return;
+}
+
+int main()
+{
+	int K;
+	cin >> K;
+	vector<graph_node> graph(K);
+	for (int i = 0; i < K; i++) {
+		cin >> graph[i].data;
+	}
+	for (int i = 0; i < K; i++) {
+		string tmp;
+		cin >> tmp;
+		for (int j = 0; j < K; j++) {
+			//cout << tmp[j];
+			if (tmp[j] == 'Y') {
+				//cout << "i = " << i << endl;
+				//cout << "j = " << j << endl;
+				graph[i].neighbours.push_back(j);
+			}
+		}
+		//cout << endl;
+	}
+	vector<int> visited(K, 0);
+	for (int i = 0; i < K; i++) {
+		if (!visited[i]) {
+			vector<int> current_nodes;
+			vector<int> current_nums;
+			dfs(graph, i, visited, current_nodes, current_nums);
+			sort(current_nums.begin(), current_nums.end());
+			sort(current_nodes.begin(), current_nodes.end());
+			int n = current_nums.size();
+			for (int i = 0; i < n; i++) {
+				cout << "current_nodes[" << i << "] = " << current_nodes[i] << endl; 
+				cout << "current_nums[" << i << "] = " << current_nums[i] << endl; 
+				graph[current_nodes[i]].data = current_nums[i];
+			}
+		}
+	}
+	for (int i = 0; i < K; i++) {
+		cout << graph[i].data << " ";
+	}
+	//cout << endl;
+	return 0;
+}

@@ -1,0 +1,94 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <limits>
+
+using namespace std;
+
+int edit_distance(const string &a, const string &b) {
+	int m, n;
+	m = a.size();
+	n = b.size();
+	vector<vector<int> > cost(m + 1, vector<int>(n + 1));
+	for (int i = 0; i <= m; i++) {
+		cost[i][0] = i;
+	}
+	for (int i = 0; i <= n; i++) {
+		cost[0][i] = i;
+	}
+	for (int i = 1; i <= m; i++) {
+		int row_min = cost[i][0];
+		for (int j = 1; j <= n; j++) {
+			int min_cost = min(cost[i-1][j] + 1, cost[i][j - 1] + 1);
+			if (a[i - 1] == b[j - 1]) {
+				min_cost = min(min_cost, cost[i - 1][j - 1]);
+			} else {
+				min_cost = min(min_cost, cost[i - 1][j - 1] + 1);
+			}
+			cost[i][j] = min_cost;
+			if (row_min > min_cost) {
+				row_min = min_cost;
+			}
+		}
+		if (row_min > 1)
+			return 2;
+	}
+	return cost[m][n];
+}
+
+int dfs(const vector<string> &dictionary, vector<int> &visited, vector<int> &ladder_length, int start)
+{
+	int max;
+	max = 0;
+	int n = dictionary.size();
+	visited[start] = 1;
+	for (int i = start + 1; i < n; i++) {
+		if (max > (n - i)) {
+			break;
+		}
+		if(!visited[i]) {
+			if (edit_distance(dictionary[start], dictionary[i]) == 1) {
+				int depth = dfs(dictionary, visited, ladder_length, i);
+				if (max < depth) {
+					max = depth;
+				}
+			}
+		}
+	}
+	ladder_length[start] = max + 1;
+	return max + 1;
+}
+
+int edit_ladder_length(const vector<string> &dictionary)
+{
+	int n = dictionary.size();
+	vector<int> visited(n, 0);
+	vector<int> ladder_length(n, 0);
+	for (int i = 0; i < n; i++) {
+		if (!visited[i])
+			dfs(dictionary, visited, ladder_length, i);
+	}
+	int max = 0;
+	for (int i = 0; i < n; i++) {
+		if (max < ladder_length[i]) {
+			max = ladder_length[i];
+		}
+	}
+	return max;
+}
+
+int main()
+{
+	vector<string> dictionary;
+	while(1) {
+		string word;
+		cin >> word;
+		if (cin.eof()) {
+			break;
+		}
+		dictionary.push_back(word);
+	}
+	cout << edit_ladder_length(dictionary) << endl;
+	return 0;
+}
