@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 	int num1, num2, gcd, coef1, coef2;
 	stringstream strstream;
 	if (argc != 3) {
-		cerr << "Usage extended_euclid <num1> <num2>" << endl;
+		cerr << "Usage " << argv[0] << " <num1> <num2>" << endl;
 		return 1;
 	}
 	strstream << argv[1] << " " << argv[2];
